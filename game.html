@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mensive Quest — Stardew Style</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #c2dbee;   /* background utama */
+      --text: #2C2C2C; /* teks */
+      --btn: #ffc627;  /* warna button */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; 
+      color: var(--text); 
+      background: var(--bg);
+      font-family: 'Press Start 2P', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Simple pixel sky/ground */
+   /* .sky {
+      position: fixed; inset: 0; 
+      background: var(--bg);
+      image-rendering: pixelated;
+    }
+    .lampions { position: fixed; inset: 0; pointer-events:none; }
+    .lampions:before, .lampions:after {
+      content:""; position:absolute; left:0; right:0; height:6px; top:12vh; background: #2C2C2C;
+      box-shadow: 0 12vh 0 #2C2C2C;
+    } */
+
+    /* Scenes */
+    .scene { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px;}
+    .hide { display: none; }
+
+    /* helper scene*/
+    .top { 
+      position:absolute; 
+      top:16px; 
+      left:50%; 
+      transform:translateX(-50%); /* biar selalu rata tengah */
+      display:grid; 
+      place-items: center; 
+      pointer-events:none; 
+    }
+    /* Dialog / panel */
+    .panel {
+      width: min(900px, 92vw); 
+      min-height: 120px; 
+      background: rgba(255,255,255,.8);
+      border: 4px solid var(--text); 
+      border-radius: 10px; 
+      padding: 18px 18px 14px; 
+      box-shadow: 0 6px 0 #0002;
+      color: var(--text);
+    }
+    .panel h1 { 
+      font-size: 18px; 
+      margin: 0 0 10px; 
+      color: var(--text); 
+      text-shadow: none; 
+    }
+    .text { font-size: 12px; line-height: 1.6; min-height: 3.4em; }
+
+    .btns { display:flex; gap:10px; flex-wrap: wrap; margin-top: 12px; }
+    .btn {
+      border: 3px solid var(--text); 
+      background: var(--btn); 
+      color: var(--text); 
+      padding: 10px 14px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      text-decoration:none; 
+      font-size: 12px; 
+      box-shadow: 0 4px 0 #0003;
+    }
+    .btn.alt { background: var(--btn); box-shadow: 0 4px 0 #0003; }
+    .btn.warn { background: var(--btn); box-shadow: 0 4px 0 #0003; }
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #0005; }
+
+    /* Fishing mini-game */
+    .fish-wrap{ 
+      width:min(700px,92vw); 
+      background:#fff; 
+      border:4px solid var(--text); 
+      border-radius:10px; 
+      padding:14px; 
+      margin:12px auto; 
+      color: var(--text);
+    }
+    .bar { 
+      position: relative; 
+      height: 50px;              /* lebih tinggi dari sebelumnya 20px */
+      background: #eee; 
+      border: 3px solid var(--text); 
+      border-radius: 8px; 
+      overflow: hidden; 
+    }
+        .target{ position:absolute; top:0; height:100%; width:18%; background:#ffc627aa; outline:2px dashed var(--text); }
+    .marker { 
+      position: absolute; 
+      top: 0; 
+      height: 100%;              /* penuh dari atas sampai bawah bar */
+      width: 50px;               /* kotak lebih lebar */
+      font-size: 28px;           /* biar ikan kelihatan proporsional */
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      pointer-events: none;
+    }
+
+    /* Farming mini-game */
+    .farm-wrap{ 
+      width:min(700px,92vw); 
+      background:#fff; 
+      border:4px solid var(--text); 
+      border-radius:10px; 
+      padding:14px; 
+      margin:12px auto; 
+    }
+    .plot{ display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; }
+    .tile{ aspect-ratio: 1/1; background: #ffffff; border:3px solid var(--text); border-radius:6px; display:grid; place-items:center; font-size:22px; color:var(--text); }
+    .tile.seed{ background: #ffffff; }
+    .tile.grow{ background: #ffffff; }
+    .tile.bloom{ background: #ffffff; }
+    .progress{ height:12px; background:#eee; border:3px solid var(--text); border-radius:8px; overflow:hidden; margin-top:10px; }
+    .barfill{ height:100%; width:0%; background:var(--btn); }
+
+    /* Treasure mini-game */
+    .map-wrap{ 
+      width:min(700px,92vw); 
+      background:#fff; 
+      border:4px solid var(--text); 
+      border-radius:10px; 
+      padding:14px; 
+      margin:12px auto; 
+      max-height: 300px;  
+      overflow-y: auto; 
+      color: var(--text);
+    }
+    .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+    .cell{ aspect-ratio:1/1; background:#eaeaea; border:3px solid var(--text); border-radius:8px; display:grid; place-items:center; font-size:22px; cursor:pointer; color:var(--text); }
+    .cell.open{ background:#dcdcdc; cursor:default; }
+
+    /* Ending campfire */
+    .camp{ width:180px; height:120px; position:relative; margin:0 auto; }
+    .flame{ position:absolute; bottom:20px; left:50%; transform:translateX(-50%); width:60px; height:60px; background: radial-gradient(circle at 50% 80%, #ffc627, #ff6d00 60%, transparent 61%); filter: blur(1px); animation: flicker .25s infinite alternate; }
+    .log{ position:absolute; bottom:10px; left:50%; width:90px; height:12px; transform:translateX(-50%); background:#e0c68a; border:3px solid var(--text); border-radius:8px; }
+    @keyframes flicker { from{ transform:translateX(-50%) scale(1); } to { transform:translateX(-50%) scale(1.08); } }
+
+    /* helper */
+    .top { position:absolute; top:16px; width:100%; display:grid; place-items: center; pointer-events:none; }
+    .badge { display:inline-block; padding:6px 10px; background:#fff8; border:3px solid var(--text); border-radius:8px; font-size:11px; pointer-events:auto; color:var(--text); }
+
+    /* Footer */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #2C2C2C;
+      border-top: 4px solid var(--text);
+      text-align: center;
+      font-size: 10px;
+      padding: 8px;
+      color: var(--text);
+    }
+    footer p {
+      font-family: "Press Start 2P", monospace;
+      font-size: 8px;
+      margin: 0;
+      color: #ffffff;
+    }    
+    footer a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      color: #F4D03F;
+      text-decoration: none;
+    }
+</style>
+</head>
+<body>
+<audio id="bgm" loop preload="auto">
+  <source src="bgm.mp3" type="audio/mpeg">
+</audio>
+  <div class="top"><span id="stageBadge" class="badge">Stage: Intro</span></div>
+
+  <!-- INTRO SCENE -->
+  <section id="scene-intro" class="scene">
+    <div class="panel">
+      <h1>Let's Play!</h1>
+      <div id="introText" class="text"></div>
+      <div class="btns">
+        <button class="btn" id="startBtn">Start Quest 🎮</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FISHING SCENE -->
+  <section id="scene-fish" class="scene hide">
+    <div class="panel">
+      <h1>Quest 1 — Fishing Game 🎣</h1>
+      <div id="fishText" class="text"></div>
+    </div>
+    <div class="fish-wrap">
+      <div class="bar" id="fishBar">
+        <div class="target" id="fishTarget"></div>
+        <div class="marker" id="fishMarker">🐟</div>
+      </div>
+      <div class="btns">
+        <button class="btn alt" id="castBtn">Pancing</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FISH RESULT / REWARD -->
+  <section id="scene-jar" class="scene hide">
+    <div class="panel">
+      <h1>Hadiah 1 — Benih Harapan 🍒🌱🌻</h1>
+      <div id="jarText" class="text"></div>
+      <div class="btns">
+        <button class="btn" id="toFarm">Lanjut ke Quest 2 ➡️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FARMING SCENE -->
+  <section id="scene-farm" class="scene hide">
+    <div class="panel">
+      <h1>Quest 2 — Farming Game 🌱</h1>
+      <div id="farmText" class="text"></div>
+    </div>
+    <div class="farm-wrap">
+      <div class="plot" id="plot"></div>
+      <div class="progress"><div id="growBar" class="barfill"></div></div>
+      <div class="btns">
+        <button class="btn alt" id="plantBtn">Tanam Benih</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECRET ROOM / REWARD -->
+  <section id="scene-room" class="scene hide">
+    <div class="panel">
+      <h1>Hadiah 2 — Secret Room 🔐</h1>
+      <div id="roomText" class="text"></div>
+      <div class="btns">
+        <button class="btn" id="toHunt">Lanjut ke Quest 3 ➡️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TREASURE SCENE -->
+  <section id="scene-hunt" class="scene hide">
+    <div class="panel">
+      <h1>Quest 3 — Find a Chest 🔎</h1>
+      <div id="huntText" class="text"></div>
+    </div>
+    <div class="map-wrap">
+      <div id="grid" class="grid"></div>
+    </div>
+  </section>
+
+  <!-- REWARD -->
+  <section id="scene-report" class="scene hide">
+    <div class="panel">
+      <h1> Hadiah 3 — Peti </h1>
+      <div id="reportText" class="text"></div>
+      <div class="btns">
+        <button class="btn" id="toEnding">Buka Peti 🧰</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENDING SCENE -->
+<!--<section id="scene-end" class="scene hide">
+    <div class="panel">
+      <h1>Api Unggun — Ending Scene</h1>
+      <div id="endText" class="text"></div>
+      <div class="camp">
+        <div class="flame"></div>
+        <div class="log"></div>
+      </div>
+      <div class="btns">
+        <button class="btn" id="againBtn">Play Again 🔁</button>
+        <button class="btn alt" id="stayBtn">Stay by the Fire 🔥</button>
+      </div>
+    </div>-->  
+
+  <section id="scene-end" class="scene hide">
+    <div class="panel">
+      <h1> Kamu Berhasil! Hurra! 👾</h1>
+      <div id="endText" class="text"></div>
+      <div class="camp">
+        <div class="flame"></div>
+        <div class="log"></div>
+      </div>
+      <div class="btns">
+        <button class="btn" id="againBtn">Play Again 🔁</button>
+        <!-- Tombol link ganti stayBtn -->
+        <a href="https://drive.google.com/file/d/162Ng8T08HZztx3I4pKMxQZnqOo062Pp4/view?usp=drive_link" target="_blank" class="btn">Special Gift</a>
+      </div>
+    </div>    
+  </section>
+  <footer>
+    <p>✨ Festival of Love © 2025 | Made with ❤️ by Tae Al-Fatih ✨</p>
+    <br><a href="index.html">Back to Home</a></br>
+  </footer>
+  <script>
+    /* Utility: typewriter effect */
+    function typeText(el, lines, speed = 18) {
+      return new Promise(resolve => {
+        const full = lines.join('\n');
+        el.textContent = '';
+        let i = 0;
+        const timer = setInterval(() => {
+          el.textContent = full.slice(0, i++);
+          if (i > full.length) { clearInterval(timer); resolve(); }
+        }, speed);
+      });
+    }
+
+    function setStage(name){ document.getElementById('stageBadge').textContent = 'Stage: ' + name; }
+    function show(id){ document.querySelectorAll('.scene').forEach(s=>s.classList.add('hide')); document.getElementById(id).classList.remove('hide'); }
+
+    // Intro
+    const introLines = [
+      'Di bawah langit penuh bintang 🌃⭐, sebuah perjalanan dimulai.',
+      'Biyu akan melewati misi kecil 🔎, penuh hadiah 🎁 dan kenangan 💖'
+    ];
+
+    // Scene order controller
+    const startBtn = document.getElementById('startBtn');
+    startBtn.addEventListener('click', async () => { show('scene-fish'); setStage('Fishing'); await typeText(document.getElementById('fishText'), fishLines); });
+
+    // BGM AUTOPLAY
+    const bgm = document.getElementById('bgm');
+
+    startBtn.addEventListener('click', async () => { 
+      // mulai musik di klik pertama
+      if (bgm.paused) {
+        bgm.volume = 0.5;   // volume setengah biar adem
+        bgm.play().catch(err => console.log("Autoplay diblokir:", err));
+      }
+
+      show('scene-fish'); 
+      setStage('Fishing'); 
+      await typeText(document.getElementById('fishText'), fishLines); 
+    });    
+
+    // Init intro text
+    typeText(document.getElementById('introText'), introLines);
+
+    // Fishing game logic
+    const fishLines = [
+      'Kamu memegang pancing dan menunggu 🐟.',
+      'Klik tombol "Pancing" di saat yang tepat ketika ikan berada di area berwarna kuning! '
+    ];
+
+    const bar = document.getElementById('fishBar');
+    const target = document.getElementById('fishTarget');
+    const marker = document.getElementById('fishMarker');
+    const castBtn = document.getElementById('castBtn');
+    const fishText = document.getElementById('fishText');
+
+    let dir = 1, pos = 0, raf, running=false;
+
+    function randomizeTarget(){
+      const w = bar.clientWidth; // px
+      const tW = w * 0.18;
+      const x = Math.random() * (w - tW);
+      target.style.left = x + 'px';
+      target.style.width = tW + 'px';
+    }
+
+function loop(){
+  const w = bar.clientWidth; 
+  const mW = 50;  // sesuai lebar marker di CSS
+  const speed = 3.4; 
+  pos += dir * speed; 
+  if (pos <= 0) { pos = 0; dir = 1; } 
+  if (pos >= w - mW) { pos = w - mW; dir = -1; }
+  marker.style.left = pos + 'px';
+  raf = requestAnimationFrame(loop);
+}
+
+    async function startFishGame(){
+      await typeText(fishText, fishLines);
+      randomizeTarget();
+      if (!running) { running = true; loop(); }
+    }
+
+    castBtn.addEventListener('click', () => {
+      const mLeft = marker.getBoundingClientRect().left;
+      const tRect = target.getBoundingClientRect();
+      if (mLeft >= tRect.left && mLeft <= tRect.right) {
+        cancelAnimationFrame(raf); running=false;
+        rewardJar();
+      } else {
+        // miss feedback
+        dir *= -1; randomizeTarget();
+      }
+    });
+
+    async function rewardJar(){
+      show('scene-jar'); setStage('Reward 1');
+      const jarLines = [
+        '🎉 Kamu berhasil menangkap sesuatu yang berharga!',
+        ' Bukan ikan, tapi sebuah benih harapan.',
+        ' Ayo lanjutkan ke Quest 2!'
+      ];
+      await typeText(document.getElementById('jarText'), jarLines);
+    }
+
+    document.getElementById('toFarm').addEventListener('click', async ()=>{
+      show('scene-farm'); setStage('Farming');
+      const lines = [
+        ' Tanam benih harapan 🌱, rawat dengan sabar, dan panen hingga jadi kejutan 🍓.',
+        ' Klik 🎯 "Tanam Benih" lalu tunggu bar tumbuh hingga penuh ⏳.'
+      ];
+      await typeText(document.getElementById('farmText'), lines);
+    });
+
+    // Farming logic
+    const plot = document.getElementById('plot');
+    const plantBtn = document.getElementById('plantBtn');
+    const growBar = document.getElementById('growBar');
+
+    // build 5 tiles
+    const tiles = Array.from({length:5}).map((_,i)=>{
+      const d = document.createElement('div');
+      d.className='tile'; d.textContent='🍒'; plot.appendChild(d); return d;
+    });
+
+    let planted=false, grown=false, growTimer;
+
+    plantBtn.addEventListener('click', ()=>{
+      if (planted) return;
+      planted=true; growBar.style.width='0%';
+      tiles.forEach((t,idx)=>{ t.className='tile seed'; t.textContent='🌱'; });
+      let p=0; clearInterval(growTimer);
+      growTimer=setInterval(()=>{
+        p += 2; growBar.style.width=p+'%';
+        if (p>=50) tiles.forEach(t=>{ t.className='tile grow'; t.textContent='🌻'; });
+        if (p>=100){ clearInterval(growTimer); grown=true; tiles.forEach(t=>{ t.className='tile bloom'; t.textContent='🌼'; }); rewardRoom(); }
+      }, 100);
+    });
+
+    async function rewardRoom(){
+      show('scene-room'); setStage('Reward 2');
+      const lines = [
+        'Benih 🌿 yang kamu tanam tumbuh menjadi buah berbentuk kunci 🗝️.',
+        'Kunci 🗝️ tersebut akan membantumu untuk membuka peti 💞.'
+      ];
+      await typeText(document.getElementById('roomText'), lines);
+    }
+
+    document.getElementById('toHunt').addEventListener('click', async ()=>{
+      show('scene-hunt'); setStage('Treasure Hunt');
+      await typeText(document.getElementById('huntText'), [
+        'Cari peti yang tersembunyi di antara semak 🌳 dan bunga-bunga 🌸.',
+        'Klik kotak kotak berikut, hingga kamu menemukan peti 🧰.'
+      ]);
+      setupHunt();
+    });
+
+    // Treasure hunt logic
+    const grid = document.getElementById('grid');
+    let treasureIndex = -1, opened = new Set();
+
+    function setupHunt(){
+      grid.innerHTML=''; opened.clear();
+      treasureIndex = Math.floor(Math.random()*16);
+      for (let i=0;i<16;i++){
+        const c = document.createElement('div');
+        c.className='cell';
+        c.textContent = Math.random()>.5 ? '🌳' : '🌸';
+        c.dataset.idx=i;
+        c.addEventListener('click', onCell);
+        grid.appendChild(c);
+      }
+    }
+
+    function onCell(e){
+      const c = e.currentTarget; const i = +c.dataset.idx; if (c.classList.contains('open')) return;
+      c.classList.add('open');
+      if (i === treasureIndex){ c.textContent='🧰'; // chest found
+        [...grid.children].forEach(x=>x.removeEventListener('click', onCell));
+        rewardReport();
+      } else {
+        c.textContent = '🍃';
+      }
+    }
+
+    async function rewardReport(){
+      show('scene-report'); setStage('Reward 3');
+      await typeText(document.getElementById('reportText'), [
+        'Petualangan ini membawamu pada sesuatu yang lebih serius 🫡.',
+        'Kamu menemukan peti yang berisi hadiah spesial! 🎁💖. Ayo gunakan kunci untuk membuka hadiah tersebut! 🗝️.'
+      ]);
+    }
+
+    document.getElementById('toEnding').addEventListener('click', async ()=>{
+      show('scene-end'); setStage('Ending');
+      await typeText(document.getElementById('endText'), [
+        'Setiap langkah 🚶‍♂️ sudah dilalui, setiap hadiah sudah ditemukan 🎁.',
+        'Terima kasih, sayang, sudah bersama sampai di titik ini 🥰.',
+        'Happy Mensive, let\'s keep writing our story ✨ dan ambil hadiah spesialmu!'
+      ]);
+    });
+
+    document.getElementById('againBtn').addEventListener('click', ()=>{
+      // reset minimal state
+      randomizeTarget(); pos=0; dir=1; running=false; marker.style.left='0px';
+      planted=false; grown=false; growBar.style.width='0%'; tiles.forEach(t=>{ t.className='tile'; t.textContent='🪨';});
+      show('scene-intro'); setStage('Intro'); typeText(document.getElementById('introText'), introLines);
+    });
+
+// document.getElementById('stayBtn').addEventListener('click', ()=>{ //
+    //  alert('🔥 Duduk sebentar di sini, nikmati hangatnya api unggun.');//
+   // }); //
+
+    // Start fish game whenever scene shows
+    const observer = new MutationObserver(()=>{
+      if (!document.getElementById('scene-fish').classList.contains('hide')){
+        startFishGame();
+      }
+    });
+    observer.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+  </script>
+</body>
+</html>

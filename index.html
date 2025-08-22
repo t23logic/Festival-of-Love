@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Festival of Love – Month 4</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/2FJ3t4b/pixel-heart.png">
+  <meta property="og:title" content="Festival of Love – Month 4">
+  <meta property="og:description" content="Celebrate our 4th Mensive Festival together under the pixel stars ✨">
+  <meta property="og:image" content="https://i.ibb.co/2FJ3t4b/pixel-heart.png">
+  <meta property="og:type" content="website">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>  
+    html, body {
+        height: 100%;
+        margin: 0;
+        font-family: "Press Start 2P", monospace;
+        background: #c2dbee; /* sky color */
+        color: #2C2C2C;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #2C2C2C; /* sky deeper */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 1000;
+      color: #ffc627;
+    }
+    .loading-text {
+      font-size: 14px;
+      margin-top: 20px;
+      animation: blink 1.2s infinite;
+    }
+    .loading-icons {
+      display: flex;
+      gap: 20px;
+      font-size: 48px;
+    }
+    .loading-icons span {
+      animation: bounce 1.2s infinite;
+    }
+    .loading-icons span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-icons span:nth-child(3) { animation-delay: 0.4s; }
+    .loading-icons span:nth-child(4) { animation-delay: 0.6s; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .festival {
+      display: none;
+      padding: 40px 20px;
+      flex: 1;
+      margin-top: 150px;
+    }
+    h1 {
+      font-size: 24px;      
+      margin-bottom: 20px;
+      color: #2C2C2C; /* yellow title */
+    }
+    p {
+      color: #2C2C2C;
+    }
+    .btn-custom {
+      margin: 15px;
+      padding: 12px 20px;
+      background: #ffc627; /* button red */
+      border: 2px solid #2C2C2C;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 10px;
+      color: #2C2C2C !important;
+      transition: 0.2s;
+      font-family: "Press Start 2P", monospace;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+    .btn-custom:hover {
+      background: #c6991e; /* darker red */
+    }
+    /* Start button */
+    #startBtn {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 12px 24px;
+      font-size: 14px;
+      background: #ffc627;
+      color: #2C2C2C;
+      border: 2px solid #2C2C2C;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: "Press Start 2P", monospace;
+      z-index: 2000;
+    }
+    #startBtn:hover {
+      background: #c6991e;
+    }
+    .letter {
+      font-size: 10px;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #FFFFFF;
+      border: 3px solid #2C2C2C;
+      border-radius: 8px;
+      line-height: 1.6;
+      text-align: left;
+      color: #2C2C2C;
+    }
+    /* Footer */
+    footer {
+      background: #2C2C2C; /* ground brown */
+      padding: 20px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: none;
+    }
+    footer p {
+      font-family: "Press Start 2P", monospace;
+      font-size: 8px;
+      margin: 0;
+      color: #ffffff; /* yellow flower */
+    }
+    footer a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      color: #F4D03F;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading screen -->
+  <div class="loading-screen" id="loading">
+    <div class="loading-icons">
+        <span>🐟</span>
+        <span>🌳</span>
+        <span>🐱</span>
+    </div>
+    <div class="loading-text">Entering the Festival ....</div>
+  </div>
+
+  <!-- Tombol Start Festival -->
+  <button id="startBtn">Start Festival</button>
+
+  <!-- Festival Content -->
+  <div class="festival container" id="festival">
+    <h1>🎉 Festival of Love 🎉</h1>
+    <p>Welcome, Biyu!</p>
+
+    <button class="btn-custom" onclick="showLetter()">📜 Open Festival Letter</button>
+    <a href="game.html" class="btn-custom">🎮 Play Mini Game</a>
+
+    <div class="letter" id="letter" style="display:none;">
+      <p>Penduduk desa berkumpul di alun-alun hari ini,
+        membawa senyum hangat dan hati yang berdebar 🎇.        
+      <br><br> Di bulan ke-4, para petani kita tidak hanya sibuk menanam dan memanen,
+      tapi juga sibuk menjaga cinta yang tumbuh subur layaknya ladang emas di musim panas 🌻
+      <br><br> Hari ini, seorang farmer yang akrab disapa sebagai 'Fatih',
+      dengan bangga mempersembahkan <b>Festival of Love</b> untuk merayakan kebersamaannya dengan Biyu.
+      Sebuah festival sederhana namun penuh warna, dihiasi kembang api, lentera cinta,
+      dan tawa manis yang mengisi langit malam ✨
+      <br><br> Selamat merayakan Mensive ke-4, wahai pasangan yang menghangatkan desa ini.
+      Semoga cinta kalian terus bersemi, seindah bunga di musim semi dan sekuat akar pohon di hutan 🌳❤️</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container text-center">
+      <p>✨ Festival of Love © 2025 | Made with ❤️ by Tae Al-Fatih ✨</p>
+      <p><a href="index.html">Back to Home</a></p>
+    </div>
+  </footer>
+
+  <!-- Audio -->
+  <audio id="bgm" loop muted>
+    <source src="backsound.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- jQuery, Popper.js, Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+  <script>
+    // Loading screen
+    window.onload = function() {
+      setTimeout(() => {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("startBtn").style.display = "block";
+      }, 3000);
+    };
+
+    // Tombol Start Festival
+    document.getElementById("startBtn").addEventListener("click", function() {
+      this.style.display = "none";
+      document.getElementById("festival").style.display = "block";
+      document.querySelector("footer").style.display = "block";
+
+      const bgm = document.getElementById("bgm");
+      if (bgm) {
+        bgm.muted = false;
+        bgm.play().catch((err) => {
+          console.log("Autoplay diblokir browser:", err);
+        });
+      }
+    });
+
+    // Toggle letter
+    function showLetter() {
+      const letter = document.getElementById("letter");
+      if (letter.style.display === "none") {
+        letter.style.display = "block";
+      } else {
+        letter.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
